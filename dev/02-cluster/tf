@@ -1,0 +1,16 @@
+#!/bin/bash -e
+export TF_VAR_DO_TOKEN=$DIGITAL_OCEAN_TOKEN
+export TF_VAR_SPACES_ACCESS_KEY=$SPACES_SECRET_KEY
+export TF_VAR_SPACES_SECRET_KEY=$SPACES_ACCESS_TOKEN
+
+if [ "$1" = "init" ]; then
+  shift
+  # tldr; we get away with using spaces for the remote backend because it conforms to the S3 API
+  # However, it's not all perfect for authentication, so we have to do this for the first init
+  # https://dev.to/jmarhee/digitalocean-spaces-as-a-terraform-backend-3lck
+  terraform init \
+    -backend-config="access_key=$TF_VAR_SPACES_ACCESS_KEY" \
+    -backend-config="secret_key=$TF_VAR_SPACES_SECRET_KEY" "$@"
+else
+  terraform "$@"
+fi
