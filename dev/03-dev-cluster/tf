@@ -1,0 +1,21 @@
+#!/bin/bash -e
+
+if [ "$1" = "setup" ]; then
+  shift
+  pushd setup
+  source apply.sh
+  popd
+
+else
+
+  export TF_VAR_HOST
+  TF_VAR_HOST=$(kubectl config view -o jsonpath='{.clusters[0].cluster.server}')
+
+  export TF_VAR_TOKEN
+  TF_VAR_TOKEN=$(kubectl get secret -n terraform-namespace "$(kubectl -n terraform-namespace get serviceaccount terraform-account -o jsonpath='{.secrets[0].name}')" -o jsonpath='{.data.token}' | base64 --decode)
+
+  export TF_VAR_CLUSTER_CA_CERTIFICATE
+  TF_VAR_CLUSTER_CA_CERTIFICATE=$(kubectl config view --raw -o jsonpath='{.clusters[0].cluster.certificate-authority-data}' | base64 --decode)
+
+  terraform "$@"
+fi
