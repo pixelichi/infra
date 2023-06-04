@@ -4,6 +4,12 @@ metadata:
   name: terraform-namespace
 ---
 apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: terraform-account
+  namespace: terraform-namespace
+---
+apiVersion: v1
 kind: Secret
 metadata:
   name: terraform-account-secret
@@ -11,3 +17,11 @@ metadata:
   annotations:
     kubernetes.io/service-account.name: terraform-account
 type: kubernetes.io/service-account-token
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: terraform-account
+  namespace: terraform-namespace
+secrets:
+- name: terraform-account-secret

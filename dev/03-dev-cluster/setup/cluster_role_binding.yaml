@@ -10,12 +10,3 @@ subjects:
 - kind: ServiceAccount
   name: terraform-account
   namespace: terraform-namespace
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: terraform-account-secret
-  namespace: terraform-namespace
-  annotations:
-    kubernetes.io/service-account.name: terraform-account
-type: kubernetes.io/service-account-token

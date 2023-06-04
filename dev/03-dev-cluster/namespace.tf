@@ -1,5 +1,5 @@
-resource "kubernetes_namespace" "pixelichi" {
+resource "kubernetes_namespace" "shinypothos" {
   metadata {
-    name = "pixelichi"
+    name = "shinypothos"
   }
 }
