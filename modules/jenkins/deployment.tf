@@ -1,4 +1,4 @@
-resource "kubernetes_deployment" "jenkins_deployment" {
+resource "kubernetes_deployment" "jenkins_main_deployment" {
   metadata {
     name      = "jenkins"
     namespace = kubernetes_namespace.jenkins-main.metadata[0].name
@@ -20,6 +20,12 @@ resource "kubernetes_deployment" "jenkins_deployment" {
       }
 
       spec {
+
+        security_context {
+          fs_group    = 1000
+          run_as_user = 1000
+        }
+
         container {
           image             = "jenkins/jenkins:lts"
           image_pull_policy = "Always"
@@ -36,14 +42,13 @@ resource "kubernetes_deployment" "jenkins_deployment" {
           }
 
           volume_mount {
-            mount_path = "/var"
-            name       = "jenkins-home"
+            name       = kubernetes_persistent_volume_claim.jenkins-pvc.metadata[0].name
+            mount_path = "/var/jenkins_home"
           }
         }
 
         volume {
-          name = "jenkins-home"
-
+          name = kubernetes_persistent_volume_claim.jenkins-pvc.metadata[0].name
           persistent_volume_claim {
             claim_name = kubernetes_persistent_volume_claim.jenkins-pvc.metadata[0].name
             read_only  = false
@@ -52,4 +57,8 @@ resource "kubernetes_deployment" "jenkins_deployment" {
       }
     }
   }
+
+  depends_on = [
+    kubernetes_persistent_volume_claim.jenkins-pvc
+  ]
 }

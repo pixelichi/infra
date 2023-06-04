@@ -13,3 +13,4 @@ resource "kubernetes_persistent_volume_claim" "jenkins-pvc" {
     storage_class_name = kubernetes_storage_class.do-block-retain-storage-class.metadata[0].name
   }
 }
+

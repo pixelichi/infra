@@ -6,10 +6,3 @@ terraform {
     }
   }
 }
-
-# https://registry.terraform.io/providers/digitalocean/digitalocean/latest/docs/data-sources/kubernetes_cluster
-provider "kubernetes" {
-  host                   = var.cluster_endpoint
-  token                  = var.cluster_token
-  cluster_ca_certificate = var.cluster_ca_cert
-}

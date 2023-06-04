@@ -11,7 +11,7 @@ resource "kubernetes_storage_class" "do-block-retain-storage-class" {
   reclaim_policy         = "Retain"
 
   parameters = {
-    "region" = "sfo3"
+    "region" = "nyc1"
   }
 
   volume_binding_mode = "Immediate"
