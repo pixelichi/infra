@@ -90,7 +90,7 @@ resource "kubernetes_persistent_volume" "nginx_pv" {
     capacity = {
       storage = "1Gi"
     }
-    access_modes                     = ["ReadOnlyMany"]
+    access_modes                     = ["ReadWriteOnce"]
     persistent_volume_reclaim_policy = "Retain"
     storage_class_name               = "manual"
     persistent_volume_source {
