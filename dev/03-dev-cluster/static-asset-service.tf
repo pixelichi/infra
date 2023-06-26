@@ -38,6 +38,7 @@ resource "kubernetes_deployment" "static_asset_server_deploy" {
           }
 
           volume_mount {
+            # Inside the Pod
             name       = "nginx-data"
             mount_path = "/usr/share/nginx/html"
           }
@@ -95,7 +96,7 @@ resource "kubernetes_persistent_volume" "nginx_pv" {
     storage_class_name               = "manual"
     persistent_volume_source {
       host_path {
-        path = var.STATIC_ASSETS_FOLDER
+        path = "/mnt/ui"
       }
     }
   }

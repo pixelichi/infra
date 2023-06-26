@@ -8,13 +8,6 @@ variable "use_load_balancer" {
   default     = false
 }
 
-variable "STATIC_ASSETS_FOLDER" {
-  default = "/home/share"
-}
-variable "DB_FOLDER" {
-  default = "/home/db"
-}
-
 variable "HOST" {
 }
 

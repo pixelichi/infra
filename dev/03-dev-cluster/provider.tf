@@ -19,3 +19,4 @@ provider "kubernetes" {
   cluster_ca_certificate = var.CLUSTER_CA_CERTIFICATE
 }
 
+provider "random" {}

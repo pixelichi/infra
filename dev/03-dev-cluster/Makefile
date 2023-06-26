@@ -16,9 +16,15 @@ proxy:
 load-images:
 	kind load docker-image backend:latest
 
-setup: load-images
-	cd setup && ./apply.sh
+create-cluster:
+	kind create cluster --config="./rsc/kind/kind-cluster-config.yaml" --name "shinypothos" --wait 5m
+	kubectl apply -f ./rsc/kind/terraform_namespace.yaml
+	kubectl apply -f ./rsc/kind/cluster_role_binding.yaml
+	kind --name shinypothos load docker-image backend:latest
 
+
+destroy-cluster:
+	kind delete cluster --name shinypothos
 
 POSTGRES_POD_NAME = $(shell kubectl -n db get pods | grep db | awk '{ print $$1 }')
 psql:

@@ -60,6 +60,7 @@ resource "kubernetes_deployment" "db" {
           }
 
           volume_mount {
+            # Inside the pod
             name       = "postgres-data"
             mount_path = "/var/lib/postgresql/data"
           }
@@ -84,14 +85,15 @@ resource "kubernetes_persistent_volume" "db_pv" {
 
   spec {
     capacity = {
-      storage = "5Gi"
+      storage = "10Gi"
     }
     access_modes                     = ["ReadWriteOnce"]
     persistent_volume_reclaim_policy = "Retain"
     storage_class_name               = "manual"
     persistent_volume_source {
       host_path {
-        path = var.STATIC_ASSETS_FOLDER
+        # Inside the kind-node-plane container - aka the node
+        path = "/mnt/db"
       }
     }
   }
@@ -111,6 +113,7 @@ resource "kubernetes_persistent_volume_claim" "db" {
         storage = "10Gi"
       }
     }
+    volume_name = kubernetes_persistent_volume.db_pv.metadata.0.name
   }
 }
 

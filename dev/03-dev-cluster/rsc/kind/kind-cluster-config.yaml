@@ -1,0 +1,10 @@
+# MUST BE USED WHEN CREATING CLUSTER WITH KIND!
+# Necessary so that we can mount into
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+    # add a mount from /path/to/my/files on the host to /files on the node
+    extraMounts:
+      - hostPath: /srv
+        containerPath: /mnt
