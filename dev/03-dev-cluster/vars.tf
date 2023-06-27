@@ -30,3 +30,7 @@ variable "DB_NAME" {
   default = "db"
 }
 
+variable "STORAGE_CLASS" {
+  # Unsure why this works...but for some reason we need to set this in order for the pv and pvc to match up
+  default = "manual"
+}

@@ -1,185 +1,201 @@
 
-# resource "kubernetes_namespace" "minio" {
-#   metadata {
-#     name = "minio"
-#   }
-# }
+resource "kubernetes_namespace" "minio" {
+  metadata {
+    name = "minio"
+  }
+}
 
-# resource "random_string" "access_key" {
-#   length  = 20
-#   special = false
-#   upper   = true
-#   lower   = true
-#   numeric = true
-# }
+resource "random_string" "access_key" {
+  length  = 20
+  special = false
+  upper   = true
+  lower   = true
+  numeric = true
+}
 
-# resource "random_string" "secret_key" {
-#   length  = 40
-#   special = false
-#   upper   = true
-#   lower   = true
-#   numeric = true
-# }
+resource "random_string" "secret_key" {
+  length  = 40
+  special = false
+  upper   = true
+  lower   = true
+  numeric = true
+}
 
-# resource "kubernetes_secret" "minio_credentials" {
-#   metadata {
-#     name      = "minio-credentials"
-#     namespace = kubernetes_namespace.minio.metadata[0].name
-#   }
+resource "kubernetes_secret" "minio_credentials" {
+  metadata {
+    name      = "minio-credentials"
+    namespace = kubernetes_namespace.minio.metadata[0].name
+  }
 
-#   data = {
-#     accesskey = base64encode(random_string.access_key.result)
-#     secretkey = base64encode(random_string.secret_key.result)
-#   }
+  data = {
+    accesskey = base64encode(random_string.access_key.result)
+    secretkey = base64encode(random_string.secret_key.result)
+  }
 
-#   type = "Opaque"
-# }
+  type = "Opaque"
+}
 
 
-# resource "kubernetes_persistent_volume" "minio_pv" {
-#   metadata {
-#     name = "minio-pv"
-#   }
+resource "kubernetes_persistent_volume" "minio_pv" {
+  metadata {
+    name = "minio-pv"
+  }
 
-#   spec {
-#     capacity = {
-#       storage = "10Gi"
-#     }
-#     access_modes                     = ["ReadWriteOnce"]
-#     persistent_volume_reclaim_policy = "Retain"
-#     storage_class_name               = "manual"
-#     persistent_volume_source {
-#       host_path {
-#         path = "/mnt/object"
-#       }
-#     }
-#   }
-# }
+  spec {
 
-# resource "kubernetes_persistent_volume_claim" "minio_pvc" {
-#   metadata {
-#     name      = "minio-pvc"
-#     namespace = kubernetes_namespace.minio.metadata[0].name
-#   }
-#   spec {
-#     access_modes = ["ReadWriteOnce"]
-#     resources {
-#       requests = {
-#         storage = "10Gi"
-#       }
-#     }
-#     volume_name = kubernetes_persistent_volume.minio_pv.metadata[0].name
-#   }
-# }
+    capacity = {
+      storage = "10Gi"
+    }
 
-# resource "kubernetes_deployment" "minio" {
-#   metadata {
-#     name      = "minio"
-#     namespace = kubernetes_namespace.minio.metadata[0].name
-#   }
+    access_modes                     = ["ReadWriteOnce"]
+    persistent_volume_reclaim_policy = "Retain"
+    storage_class_name               = var.STORAGE_CLASS
+    persistent_volume_source {
+      host_path {
+        path = "/mnt/object"
+      }
+    }
+  }
+}
 
-#   spec {
-#     replicas = 1
+resource "kubernetes_persistent_volume_claim" "minio_pvc" {
+  metadata {
+    name      = "minio-pvc"
+    namespace = kubernetes_namespace.minio.metadata[0].name
+  }
+  spec {
+    access_modes       = ["ReadWriteOnce"]
+    storage_class_name = var.STORAGE_CLASS
 
-#     selector {
-#       match_labels = {
-#         App = "minio"
-#       }
-#     }
+    resources {
+      requests = {
+        storage = "10Gi"
+      }
+    }
+    volume_name = kubernetes_persistent_volume.minio_pv.metadata[0].name
+  }
+}
 
-#     template {
-#       metadata {
-#         labels = {
-#           App = "minio"
-#         }
-#       }
+resource "kubernetes_deployment" "minio" {
+  metadata {
+    name      = "minio"
+    namespace = kubernetes_namespace.minio.metadata[0].name
+  }
 
-#       spec {
-#         container {
-#           image = "minio/minio:latest"
-#           name  = "minio"
+  spec {
+    replicas = 1
 
-#           args = [
-#             "server",
-#             "/data",
-#           ]
+    selector {
+      match_labels = {
+        App = "minio"
+      }
+    }
 
-#           env {
-#             name = "MINIO_ACCESS_KEY"
-#             value_from {
-#               secret_key_ref {
-#                 name = kubernetes_secret.minio_credentials.metadata[0].name
-#                 key  = "accesskey"
-#               }
-#             }
-#           }
+    template {
+      metadata {
+        labels = {
+          App = "minio"
+        }
+      }
 
-#           env {
-#             name = "MINIO_SECRET_KEY"
-#             value_from {
-#               secret_key_ref {
-#                 name = kubernetes_secret.minio_credentials.metadata[0].name
-#                 key  = "secretkey"
-#               }
-#             }
-#           }
+      spec {
+        container {
+          image = "minio/minio:latest"
+          name  = "minio"
 
-#           port {
-#             container_port = 9000
-#           }
+          args = [
+            "server",
+            "/data",
+            "--console-address",
+            ":9090"
+          ]
 
-#           readiness_probe {
-#             http_get {
-#               path = "/minio/health/ready"
-#               port = 9000
-#             }
-#             initial_delay_seconds = 5
-#             period_seconds        = 10
-#           }
+          env {
+            name = "MINIO_ACCESS_KEY"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.minio_credentials.metadata[0].name
+                key  = "accesskey"
+              }
+            }
+          }
 
-#           liveness_probe {
-#             http_get {
-#               path = "/minio/health/live"
-#               port = 9000
-#             }
-#             initial_delay_seconds = 5
-#             period_seconds        = 10
-#           }
+          env {
+            name = "MINIO_SECRET_KEY"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.minio_credentials.metadata[0].name
+                key  = "secretkey"
+              }
+            }
+          }
 
-#           volume_mount {
-#             mount_path = "/data"
-#             name       = "data"
-#           }
-#         }
+          port {
+            container_port = 9000
+          }
 
-#         volume {
-#           name = "data"
+          readiness_probe {
+            http_get {
+              path = "/minio/health/ready"
+              port = 9000
+            }
+            initial_delay_seconds = 5
+            period_seconds        = 10
+          }
 
-#           persistent_volume_claim {
-#             claim_name = kubernetes_persistent_volume_claim.minio_pvc.metadata[0].name
-#           }
-#         }
-#       }
-#     }
-#   }
-# }
+          liveness_probe {
+            http_get {
+              path = "/minio/health/live"
+              port = 9000
+            }
+            initial_delay_seconds = 5
+            period_seconds        = 10
+          }
 
-# resource "kubernetes_service" "minio" {
-#   metadata {
-#     name      = "minio"
-#     namespace = kubernetes_namespace.minio.metadata[0].name
-#   }
+          volume_mount {
+            mount_path = "/data"
+            name       = "data"
+          }
+        }
 
-#   spec {
-#     selector = {
-#       App = "minio"
-#     }
+        volume {
+          name = "data"
 
-#     port {
-#       port        = 9000
-#       target_port = 9000
-#     }
+          persistent_volume_claim {
+            claim_name = kubernetes_persistent_volume_claim.minio_pvc.metadata[0].name
+          }
+        }
+      }
+    }
+  }
+}
 
-#     type = var.use_load_balancer ? "LoadBalancer" : "NodePort"
-#   }
-# }
+resource "kubernetes_service" "minio" {
+  metadata {
+    name      = "minio"
+    namespace = kubernetes_namespace.minio.metadata[0].name
+  }
+
+  spec {
+    selector = {
+      App = "minio"
+    }
+
+    port {
+      name        = "api"
+      port        = 9000
+      target_port = 9000
+      node_port   = 30001
+    }
+
+    port {
+      name        = "ui"
+      port        = 9090
+      target_port = 9090
+      node_port   = 30002
+    }
+
+
+    type = var.use_load_balancer ? "LoadBalancer" : "NodePort"
+  }
+}

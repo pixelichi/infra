@@ -93,7 +93,7 @@ resource "kubernetes_persistent_volume" "nginx_pv" {
     }
     access_modes                     = ["ReadWriteOnce"]
     persistent_volume_reclaim_policy = "Retain"
-    storage_class_name               = "manual"
+    storage_class_name               = var.STORAGE_CLASS
     persistent_volume_source {
       host_path {
         path = "/mnt/ui"
@@ -111,7 +111,8 @@ resource "kubernetes_persistent_volume_claim" "nginx_pvc" {
 
   spec {
     access_modes       = ["ReadWriteOnce"]
-    storage_class_name = "manual"
+    storage_class_name = var.STORAGE_CLASS
+
     resources {
       requests = {
         storage = "1Gi"

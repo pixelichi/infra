@@ -18,9 +18,9 @@ resource "kubernetes_secret" "db" {
   }
 }
 
-locals {
-  db_pvc_name = "db-pvc"
-}
+# locals {
+#   db_pvc_name = "db-pvc"
+# }
 
 resource "kubernetes_deployment" "db" {
   metadata {
@@ -70,7 +70,7 @@ resource "kubernetes_deployment" "db" {
           name = "postgres-data"
 
           persistent_volume_claim {
-            claim_name = local.db_pvc_name
+            claim_name = kubernetes_persistent_volume_claim.db.metadata.0.name
           }
         }
       }
@@ -89,7 +89,7 @@ resource "kubernetes_persistent_volume" "db_pv" {
     }
     access_modes                     = ["ReadWriteOnce"]
     persistent_volume_reclaim_policy = "Retain"
-    storage_class_name               = "manual"
+    storage_class_name               = var.STORAGE_CLASS
     persistent_volume_source {
       host_path {
         # Inside the kind-node-plane container - aka the node
@@ -101,12 +101,13 @@ resource "kubernetes_persistent_volume" "db_pv" {
 
 resource "kubernetes_persistent_volume_claim" "db" {
   metadata {
-    name      = local.db_pvc_name
+    name      = "db-pvc"
     namespace = kubernetes_namespace.db.metadata[0].name
   }
 
   spec {
-    access_modes = ["ReadWriteOnce"]
+    access_modes       = ["ReadWriteOnce"]
+    storage_class_name = var.STORAGE_CLASS
 
     resources {
       requests = {
