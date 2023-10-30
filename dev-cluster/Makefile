@@ -28,6 +28,7 @@ load-images:
 	kind load docker-image backend:latest
 
 create-cluster:
+	test -d /srv 
 	kind create cluster --config="./rsc/kind/kind-cluster-config.yaml" --name "shinypothos" --wait 5m
 	kubectl apply -f ./rsc/kind/terraform_namespace.yaml
 	kubectl apply -f ./rsc/kind/cluster_role_binding.yaml

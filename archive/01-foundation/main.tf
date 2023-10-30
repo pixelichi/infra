@@ -27,7 +27,7 @@ provider "digitalocean" {
 }
 
 module "shinypothos-dev" {
-  source       = "../../modules/foundation"
+  source       = "./modules/foundation"
   region       = "sfo3"
   env          = "dev"
   project_name = "shinypothos"
