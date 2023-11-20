@@ -6,5 +6,5 @@ nodes:
   - role: control-plane
     # add a mount from /path/to/my/files on the host to /files on the node
     extraMounts:
-      - hostPath: /srv
+      - hostPath: /usr/local/srv
         containerPath: /mnt
