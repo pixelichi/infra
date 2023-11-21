@@ -2,6 +2,11 @@
 
 Apple pie is my cute nickname for my raspberri pi server running at home. Theres some information about this server and it's setup that I'd love to remember. That is why this doc exists. 
 
+## Connecting to Apple Pie
+```bash
+ssh pi@pi-one
+```
+
 ## Technology
 - K3s due to superior arm support
 - Raspberry pi
