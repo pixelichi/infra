@@ -2,9 +2,6 @@
 
 # Code is meant to retrieve the kubeconfig from the apple pie server which runs k3s
 
-# Define the backup extension
-BACKUP_EXT=".bak"
-
 validate_args() {
     if [[ "$#" -ne 3 ]]; then
         printf "3 Arguments required. (username, host , output_location)\n"
