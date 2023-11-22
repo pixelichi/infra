@@ -4,6 +4,12 @@ resource "kubernetes_namespace" "db" {
   }
 }
 
+data "kubernetes_secret" "db_pass_secret" {
+  metadata {
+    name = "db-secret"
+  }
+}
+
 resource "kubernetes_secret" "db" {
   metadata {
     name      = "db"
@@ -13,7 +19,7 @@ resource "kubernetes_secret" "db" {
   # https://github.com/docker-library/docs/blob/master/postgres/README.md
   data = {
     "POSTGRES_USER"     = var.DB_USER
-    "POSTGRES_PASSWORD" = var.DB_PASS
+    "POSTGRES_PASSWORD" = base64decode(data.kubernetes_secret.db_pass_secret.data["password"])
     "POSTGRES_DB"       = var.DB_NAME
   }
 }

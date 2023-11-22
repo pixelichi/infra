@@ -100,8 +100,9 @@ resource "kubernetes_deployment" "minio" {
 
       spec {
         container {
-          image = "minio/minio:latest"
-          name  = "minio"
+          image             = "minio/minio:latest"
+          name              = "minio"
+          image_pull_policy = "IfNotPresent"
 
           args = [
             "server",

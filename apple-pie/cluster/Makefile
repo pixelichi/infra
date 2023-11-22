@@ -30,9 +30,11 @@ proxy-stop-minio:
 load-images:
 	kind load docker-image backend:latest
 
-create-cluster:
+setup-cluster:
 	kubectl apply -f ./rsc/kind/terraform_namespace.yaml
 	kubectl apply -f ./rsc/kind/cluster_role_binding.yaml
+	# Create Random DB password
+	kubectl create secret generic db-secret --from-literal=password=$(LC_ALL=C tr -cd '[:alnum:]' < /dev/urandom | fold -w20 | head -n1 | base64) || true
 
 destroy-cluster:
 	kind delete cluster --name shinypothos

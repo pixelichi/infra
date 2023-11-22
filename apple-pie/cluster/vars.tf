@@ -21,10 +21,10 @@ variable "DB_USER" {
   default = "admin"
 }
 
-# DON'T DEPLOY ME TO PROD WITHOUT CHANGING
-variable "DB_PASS" {
-  default = "password"
-}
+# # DON'T DEPLOY ME TO PROD WITHOUT CHANGING
+# variable "DB_PASS" {
+#   default = "password"
+# }
 
 variable "DB_NAME" {
   default = "db"
