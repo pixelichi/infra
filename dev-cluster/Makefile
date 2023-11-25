@@ -36,21 +36,29 @@ proxy-vault:
 	$(MAKE) proxy-stop-vault
 	kubectl -n vault port-forward service/vault 8200:8200 1>/dev/null &
 	kubectl -n vault port-forward service/vault 8201:8201 1>/dev/null &
+	# 
+	# Please run the following command before using vault CLI!
+	# export VAULT_ADDR='http://127.0.0.1:8200'
+	# 
 
 deploy-vault:
 	./tf apply -target=helm_release.vault
 	$(MAKE) proxy-vault && sleep 2
-	export VAULT_ADDR='http://127.0.0.1:8200' && vault operator init
-
+	export VAULT_ADDR='http://127.0.0.1:8200' && vault operator init || true
+	./rsc/baremetal/vault/unseal.sh
 
 setup-local-env:
 	./rsc/baremetal/setup.sh
 
+setup-terraform-kubernetes-account:
+	kubectl apply -f ./rsc/kind/terraform_namespace.yaml
+	kubectl apply -f ./rsc/kind/cluster_role_binding.yaml
+
 create-cluster:
 	test -d /usr/local/srv || sudo mkdir -p /usr/local/srv
 	kind create cluster --config="./rsc/kind/kind-cluster-config.yaml" --name "shinypothos" --wait 5m
-	kubectl apply -f ./rsc/kind/terraform_namespace.yaml
-	kubectl apply -f ./rsc/kind/cluster_role_binding.yaml
+	$(MAKE) setup-terraform-kubernetes-account
+	$(MAKE) deploy-vault
 	kind --name shinypothos load docker-image backend:latest
 
 destroy-cluster:
