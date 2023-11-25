@@ -27,6 +27,25 @@ proxy-stop-minio:
 load-images:
 	kind load docker-image backend:latest
 
+
+proxy-stop-vault:
+	lsof -i :8200 | awk 'NR>1 {print $$2}' | xargs -r kill -9
+	lsof -i :8201 | awk 'NR>1 {print $$2}' | xargs -r kill -9
+
+proxy-vault:
+	$(MAKE) proxy-stop-vault
+	kubectl -n vault port-forward service/vault 8200:8200 1>/dev/null &
+	kubectl -n vault port-forward service/vault 8201:8201 1>/dev/null &
+
+deploy-vault:
+	./tf apply -target=helm_release.vault
+	$(MAKE) proxy-vault && sleep 2
+	export VAULT_ADDR='http://127.0.0.1:8200' && vault operator init
+
+
+setup-local-env:
+	./rsc/baremetal/setup.sh
+
 create-cluster:
 	test -d /usr/local/srv || sudo mkdir -p /usr/local/srv
 	kind create cluster --config="./rsc/kind/kind-cluster-config.yaml" --name "shinypothos" --wait 5m

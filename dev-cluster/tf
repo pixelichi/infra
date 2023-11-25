@@ -1,12 +1,6 @@
 #!/bin/bash -e
 
-if [ "$1" = "setup" ]; then
-  shift
-  pushd setup
-  source apply.sh
-  popd
-
-elif [ "$1" = "proxy" ]; then
+if [ "$1" = "proxy" ]; then
   lsof -i :3000 | awk 'NR>1 {print $2}' | xargs -r kill -9
   kubectl -n static-asset port-forward service/static-asset-service 3000:80 1>/dev/null &
 
