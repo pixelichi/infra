@@ -172,13 +172,13 @@ resource "kubernetes_service" "minio" {
 # Secrets for minio deployment ===========================================
 
 locals {
-  minio_secrets_path     = "secret/minio-secrets"
+  minio_secrets_path     = "${var.VAULT_TERRAFORM_PATH}/minio-secrets"
   minio_access_key_key   = "access_key"
   minio_secret_token_key = "secret_key"
 }
 
 resource "vault_generic_secret" "minio_secrets" {
-  path = local.minio_secrets_path
+  path = "${var.VAULT_TERRAFORM_PATH}/minio-secrets"
   data_json = jsonencode({
     secret_key = random_string.minio_secret_key.result
     access_key = random_string.minio_access_key.result,

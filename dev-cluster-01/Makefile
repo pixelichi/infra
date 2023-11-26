@@ -29,10 +29,13 @@ load-images:
 
 
 proxy-stop-vault:
+	printf "Stoping Vault Proxy...."
 	lsof -i :8200 | awk 'NR>1 {print $$2}' | xargs -r kill -9
 	lsof -i :8201 | awk 'NR>1 {print $$2}' | xargs -r kill -9
+	printf "Vault Proxy Stopped!\n\n"
 
 proxy-vault:
+	printf "Starting Vault Proxy...."
 	$(MAKE) proxy-stop-vault
 	kubectl -n vault port-forward service/vault 8200:8200 1>/dev/null &
 	kubectl -n vault port-forward service/vault 8201:8201 1>/dev/null &
@@ -40,12 +43,26 @@ proxy-vault:
 	# Please run the following command before using vault CLI!
 	# export VAULT_ADDR='http://127.0.0.1:8200'
 	# 
+	sleep 2 && echo "Vault Proxy Started!\n\n"
+
+
+setup-vault-kubernetes-backend:
+	@echo "Please enter Vault Admin token: "; \
+	read VAULT_ROOT_TOKEN; \
+	./tf setup-vault-backend $$VAULT_ROOT_TOKEN;
+
 
 deploy-vault:
-	./tf apply -target=helm_release.vault
-	$(MAKE) proxy-vault && sleep 2
-	export VAULT_ADDR='http://127.0.0.1:8200' && vault operator init || true
+	./tf deploy-vault
+	$(MAKE) proxy-vault
+	./rsc/baremetal/vault/init.sh
 	./rsc/baremetal/vault/unseal.sh
+	./rsc/baremetal/vault/create-terraform-policy.sh
+	# $(MAKE) setup-vault-kubernetes-backend
+
+destroy-vault:
+	./tf destroy -target=helm_release.vault
+
 
 setup-local-env:
 	./rsc/baremetal/setup.sh
@@ -59,7 +76,7 @@ create-cluster:
 	kind create cluster --config="./rsc/kind/kind-cluster-config.yaml" --name "shinypothos" --wait 5m
 	$(MAKE) setup-terraform-kubernetes-account
 	$(MAKE) deploy-vault
-	kind --name shinypothos load docker-image backend:latest
+	# kind --name shinypothos load docker-image backend:latest
 
 destroy-cluster:
 	kind delete cluster --name shinypothos

@@ -15,7 +15,7 @@ check_vault_seal_status() {
 
 # Check if Vault is sealed
 if check_vault_seal_status; then
-  echo "Vault is already unsealed."
+  printf "Vault is already unsealed.\n\n"
 else
   echo "Vault is sealed. Starting the unseal process..."
   total_keys=$(vault status -format=json | jq '.t')
@@ -33,4 +33,6 @@ else
     fi
     ((unseal_count++))
   done
+
+  printf "\n\n"
 fi

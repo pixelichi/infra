@@ -34,3 +34,10 @@ variable "STORAGE_CLASS" {
   # Unsure why this works...but for some reason we need to set this in order for the pv and pvc to match up
   default = "manual"
 }
+
+variable "VAULT_TERRAFORM_PATH" {
+  default = "secret/terraform"
+}
+
+variable "VAULT_TOKEN" {
+}

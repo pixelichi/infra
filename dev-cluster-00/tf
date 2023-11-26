@@ -1,0 +1,23 @@
+#!/bin/bash -e
+
+export TF_VAR_HOST
+TF_VAR_HOST=$(kubectl config view -o jsonpath="{.clusters[?(@.name==\"$(kubectl config current-context)\")].cluster.server}")
+
+export TF_VAR_TOKEN
+TF_VAR_TOKEN=$(kubectl get secret -n terraform-namespace "$(kubectl -n terraform-namespace get serviceaccount terraform-account -o jsonpath='{.secrets[0].name}')" -o jsonpath='{.data.token}' | base64 --decode)
+
+export TF_VAR_CLUSTER_CA_CERTIFICATE
+TF_VAR_CLUSTER_CA_CERTIFICATE=$(kubectl config view --raw -o jsonpath="{.clusters[?(@.name==\"$(kubectl config current-context)\")].cluster.certificate-authority-data}" | base64 --decode)
+
+terraform "$@"
+
+# if [ "$1" = 'deploy-vault' ]; then
+#   terraform apply -target=helm_release.vault
+#   # terraform apply -target=vault_auth_backend.kubernetes
+# else
+#   make proxy-vault
+#   export TF_VAR_VAULT_TOKEN
+#   export VAULT_ADDR='http://127.0.0.1:8200'
+#   TF_VAR_VAULT_TOKEN="$(vault token create -policy="terraform-cpolicy" -format=yaml -field=token)"
+#   terraform "$@"
+# fi

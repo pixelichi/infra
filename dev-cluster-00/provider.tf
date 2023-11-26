@@ -27,18 +27,3 @@ provider "helm" {
   }
 }
 
-data "external" "vault_address" {
-  program = ["bash", "${path.module}/rsc/kind/scripts/get_vault_address.sh"]
-}
-
-# Extract the Vault address from the external data source result
-locals {
-  vault_address = data.external.vault_address.result["vault_address"]
-}
-
-provider "vault" {
-  address = local.vault_address
-  token   = helm_release.vault.name
-}
-
-provider "random" {}
