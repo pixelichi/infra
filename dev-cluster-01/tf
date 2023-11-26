@@ -9,13 +9,9 @@ TF_VAR_TOKEN=$(kubectl get secret -n terraform-namespace "$(kubectl -n terraform
 export TF_VAR_CLUSTER_CA_CERTIFICATE
 TF_VAR_CLUSTER_CA_CERTIFICATE=$(kubectl config view --raw -o jsonpath="{.clusters[?(@.name==\"$(kubectl config current-context)\")].cluster.certificate-authority-data}" | base64 --decode)
 
-if [ "$1" = 'deploy-vault' ]; then
-  terraform apply -target=helm_release.vault
-  # terraform apply -target=vault_auth_backend.kubernetes
-else
-  make proxy-vault
-  export TF_VAR_VAULT_TOKEN
-  export VAULT_ADDR='http://127.0.0.1:8200'
-  TF_VAR_VAULT_TOKEN="$(vault token create -policy="terraform-cpolicy" -format=yaml -field=token)"
-  terraform "$@"
-fi
+make fwd-vault
+export VAULT_ADDR='http://127.0.0.1:8200'
+export TF_VAR_VAULT_TOKEN
+TF_VAR_VAULT_TOKEN="$(vault token create -policy="terraform-policy" -format=yaml -field=token)"
+
+terraform "$@"

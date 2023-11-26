@@ -80,23 +80,26 @@ resource "kubernetes_deployment" "minio" {
           ]
 
           env {
-            name = "MINIO_ACCESS_KEY"
-            value_from {
-              secret_key_ref {
-                name = vault_generic_secret.minio_secrets.id
-                key  = local.minio_access_key_key
-              }
-            }
+            name  = "MINIO_ACCESS_KEY"
+            value = "acskey"
+            # value_from {
+            # secret_key_ref {
+            #   name = vault_generic_secret.minio_secrets.id
+            #   key  = local.minio_access_key_key
+            # }
+            # }
           }
 
           env {
-            name = "MINIO_SECRET_KEY"
-            value_from {
-              secret_key_ref {
-                name = vault_generic_secret.minio_secrets.id
-                key  = local.minio_secret_token_key
-              }
-            }
+            name  = "MINIO_SECRET_KEY"
+            value = "secrtkey"
+
+            # value_from {
+            #   secret_key_ref {
+            #     name = vault_generic_secret.minio_secrets.id
+            #     key  = local.minio_secret_token_key
+            #   }
+            # }
           }
 
           port {
@@ -171,36 +174,36 @@ resource "kubernetes_service" "minio" {
 
 # Secrets for minio deployment ===========================================
 
-locals {
-  minio_secrets_path     = "${var.VAULT_TERRAFORM_PATH}/minio-secrets"
-  minio_access_key_key   = "access_key"
-  minio_secret_token_key = "secret_key"
-}
+# locals {
+#   minio_secrets_path     = "${var.VAULT_TERRAFORM_PATH}/minio-secrets"
+#   minio_access_key_key   = "access_key"
+#   minio_secret_token_key = "secret_key"
+# }
 
-resource "vault_generic_secret" "minio_secrets" {
-  path = "${var.VAULT_TERRAFORM_PATH}/minio-secrets"
-  data_json = jsonencode({
-    secret_key = random_string.minio_secret_key.result
-    access_key = random_string.minio_access_key.result,
-  })
-}
+# resource "vault_generic_secret" "minio_secrets" {
+#   path = "${var.VAULT_TERRAFORM_PATH}/minio-secrets"
+#   data_json = jsonencode({
+#     secret_key = random_string.minio_secret_key.result
+#     access_key = random_string.minio_access_key.result,
+#   })
+# }
 
-resource "vault_kubernetes_auth_backend_role" "name" {
-  role_name                        = "vault-kubernetes-auth"
-  backend                          = vault_auth_backend.kubernetes.path
-  bound_service_account_names      = ["default"]
-  bound_service_account_namespaces = ["minio"]
-}
+# resource "vault_kubernetes_auth_backend_role" "name" {
+#   role_name                        = "vault-kubernetes-auth"
+#   backend                          = vault_auth_backend.kubernetes.path
+#   bound_service_account_names      = ["default"]
+#   bound_service_account_namespaces = ["minio"]
+# }
 
 
-resource "vault_policy" "read_minio_secrets" {
-  name   = "read-minio-secrets"
-  policy = <<-EOT
-    path "${local.minio_secrets_path}" {
-      capabilities = ["read"]
-    }
-  EOT
-}
+# resource "vault_policy" "read_minio_secrets" {
+#   name   = "read-minio-secrets"
+#   policy = <<-EOT
+#     path "${local.minio_secrets_path}" {
+#       capabilities = ["read"]
+#     }
+#   EOT
+# }
 
 resource "random_string" "minio_access_key" {
   length  = 20

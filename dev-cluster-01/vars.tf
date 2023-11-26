@@ -1,7 +1,3 @@
-variable "project_name" {
-  default = "shinypothos"
-}
-
 variable "use_load_balancer" {
   description = "Set to true to use LoadBalancer, false to use NodePort"
   type        = bool
