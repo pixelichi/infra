@@ -43,12 +43,20 @@ resource "kubernetes_persistent_volume_claim" "minio_pvc" {
     }
     volume_name = kubernetes_persistent_volume.minio_pv.metadata[0].name
   }
+
 }
 
 resource "kubernetes_deployment" "minio" {
-  metadata {
+
+    metadata {
     name      = "minio"
     namespace = kubernetes_namespace.minio.metadata[0].name
+    annotations = {
+      "vault.hashicorp.com/agent-inject" = "true"
+      "vault.hashicorp.com/role" = "my-role"
+      "vault.hashicorp.com/agent-inject-secret-credentials.txt" = "secret/data/myapp/config"
+      "vault.hashicorp.com/agent-inject-template-credentials.txt" = "{{- with secret \"secret/data/myapp/config\" -}}\nexport API_KEY={{ .Data.data.api_key }}\n{{- end }}"
+    }
   }
 
   spec {
@@ -79,28 +87,25 @@ resource "kubernetes_deployment" "minio" {
             ":9090"
           ]
 
-          env {
-            name  = "MINIO_ACCESS_KEY"
-            value = "acskey"
-            # value_from {
-            # secret_key_ref {
-            #   name = vault_generic_secret.minio_secrets.id
-            #   key  = local.minio_access_key_key
-            # }
-            # }
-          }
+          # env {
+          #   name = "MINIO_ACCESS_KEY"
+          #   value_from {
+          #     secret_key_ref {
+          #       name = vault_generic_secret.minio_secrets.
+          #       key  = "access-key"
+          #     }
+          #   }
+          # }
 
-          env {
-            name  = "MINIO_SECRET_KEY"
-            value = "secrtkey"
-
-            # value_from {
-            #   secret_key_ref {
-            #     name = vault_generic_secret.minio_secrets.id
-            #     key  = local.minio_secret_token_key
-            #   }
-            # }
-          }
+          # env {
+          #   name = "MINIO_SECRET_KEY"
+          #   value_from {
+          #     secret_key_ref {
+          #       name = vault_generic_secret.minio_secrets.id
+          #       key  = "secret-key"
+          #     }
+          #   }
+          # }
 
           port {
             container_port = 9000
@@ -172,38 +177,40 @@ resource "kubernetes_service" "minio" {
   }
 }
 
-# Secrets for minio deployment ===========================================
+# Setting Up Permissions to use Secrets for object store deployment ===========================================
 
-# locals {
-#   minio_secrets_path     = "${var.VAULT_TERRAFORM_PATH}/minio-secrets"
-#   minio_access_key_key   = "access_key"
-#   minio_secret_token_key = "secret_key"
-# }
+locals {
+  minio_secrets_path = "${local.vault_secret_prefix}/minio"
+}
 
-# resource "vault_generic_secret" "minio_secrets" {
-#   path = "${var.VAULT_TERRAFORM_PATH}/minio-secrets"
-#   data_json = jsonencode({
-#     secret_key = random_string.minio_secret_key.result
-#     access_key = random_string.minio_access_key.result,
-#   })
-# }
+resource "vault_generic_secret" "minio_secrets" {
+  path = local.minio_secrets_path
+  data_json = jsonencode({
+    access_key   = random_string.minio_secret_key.result
+    secret_token = random_string.minio_access_key.result,
+  })
+}
 
-# resource "vault_kubernetes_auth_backend_role" "name" {
-#   role_name                        = "vault-kubernetes-auth"
-#   backend                          = vault_auth_backend.kubernetes.path
-#   bound_service_account_names      = ["default"]
-#   bound_service_account_namespaces = ["minio"]
-# }
+resource "vault_kubernetes_auth_backend_role" "name" {
+  role_name                        = "vault-kubernetes-auth"
+  backend                          = vault_auth_backend.kubernetes.path
+  bound_service_account_names      = ["default"]
+  bound_service_account_namespaces = ["minio"]
+  token_policies                   = [vault_policy.read_minio_secrets.name]
+}
 
 
-# resource "vault_policy" "read_minio_secrets" {
-#   name   = "read-minio-secrets"
-#   policy = <<-EOT
-#     path "${local.minio_secrets_path}" {
-#       capabilities = ["read"]
-#     }
-#   EOT
-# }
+resource "vault_policy" "read_minio_secrets" {
+  name   = "${local.vault_policy_prefix}/read-minio-secrets"
+  policy = <<-EOT
+    path "${local.minio_secrets_path}" {
+      capabilities = ["read"]
+    }
+  EOT
+}
+
+
+# Generation of Secrets ================================
 
 resource "random_string" "minio_access_key" {
   length  = 20

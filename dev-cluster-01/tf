@@ -9,9 +9,20 @@ TF_VAR_TOKEN=$(kubectl get secret -n terraform-namespace "$(kubectl -n terraform
 export TF_VAR_CLUSTER_CA_CERTIFICATE
 TF_VAR_CLUSTER_CA_CERTIFICATE=$(kubectl config view --raw -o jsonpath="{.clusters[?(@.name==\"$(kubectl config current-context)\")].cluster.certificate-authority-data}" | base64 --decode)
 
-make fwd-vault
 export VAULT_ADDR='http://127.0.0.1:8200'
 export TF_VAR_VAULT_TOKEN
-TF_VAR_VAULT_TOKEN="$(vault token create -policy="terraform-policy" -format=yaml -field=token)"
+TF_VAR_VAULT_TOKEN="$(vault token create -policy="terraform" -format=yaml -field=token)"
+
+if [ "$TF_LOG" = "debug" ]; then
+    printf "\n\nUsing this TOKEN for VAULT: %s\n\n" "$TF_VAR_VAULT_TOKEN"
+
+    printf "Looking up token... \n"
+    vault token lookup $TF_VAR_VAULT_TOKEN
+    printf "\n\n"
+
+    printf "Checking out token capabilities sys/auth/kubernetes ...\n"
+    vault token capabilities $TF_VAR_VAULT_TOKEN sys/auth/kubernetes
+    printf "\n\n"
+fi
 
 terraform "$@"

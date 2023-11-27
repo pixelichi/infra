@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VAULT_ADDRESS='http://127.0.0.1:8200'
+export VAULT_ADDR='http://127.0.0.1:8200'
 
 # Check if Vault is initialized
 check_vault_initialized() {

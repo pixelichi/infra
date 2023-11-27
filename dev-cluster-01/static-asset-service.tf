@@ -120,5 +120,6 @@ resource "kubernetes_persistent_volume_claim" "nginx_pvc" {
     }
     volume_name = kubernetes_persistent_volume.nginx_pv.metadata.0.name
   }
+
 }
 

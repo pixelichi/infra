@@ -31,9 +31,5 @@ variable "STORAGE_CLASS" {
   default = "manual"
 }
 
-variable "VAULT_TERRAFORM_PATH" {
-  default = "secret/terraform"
-}
-
 variable "VAULT_TOKEN" {
 }

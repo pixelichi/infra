@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: my-pvc
+  namespace: static-asset
+spec:
+  accessModes:
+    - ReadWriteOnce # This should match your PV's access mode
+  resources:
+    requests:
+      storage: 1Gi # This should be less than or equal to the PV size
+  volumeName: nginx-pv # Bind to a specific PV
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pv-viewer
+  namespace: static-asset
+spec:
+  containers:
+  - name: pv-viewer
+    image: busybox
+    command: ["sleep", "3600"]
+    volumeMounts:
+    - name: mypvc
+      mountPath: /mnt
+  volumes:
+  - name: mypvc
+    persistentVolumeClaim:
+      claimName: my-pvc

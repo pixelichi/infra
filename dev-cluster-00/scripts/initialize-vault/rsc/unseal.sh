@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the Vault address (change this to your Vault's address)
-VAULT_ADDRESS="http://127.0.0.1:8200"
+export VAULT_ADDR="http://127.0.0.1:8200"
 
 # Function to check seal status
 check_vault_seal_status() {

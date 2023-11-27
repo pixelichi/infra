@@ -32,14 +32,7 @@ POSTGRES_POD_NAME = $(shell kubectl -n db get pods | grep db | awk '{ print $$1 
 psql:
 	kubectl exec -n db -it $(POSTGRES_POD_NAME) -- psql -h localhost -U admin -d db
 
-# get-minio-secrets: get-minio-access-key get-minio-secret-key
-
-# get-minio-access-key:
-# 	@printf "Access Key:    "
-# 	@kubectl get secret minio-credentials -n minio -o jsonpath='{.data.accesskey}' | base64 -d
-# 	@echo ""
-
-# get-minio-secret-key:
-# 	@printf "Secret Key:    "
-# 	@kubectl get secret minio-credentials -n minio -o jsonpath='{.data.secretkey}' | base64 -d
-# 	@echo ""
+clean-state:
+	rm -rf .terraform
+	rm terraform.tfstate
+	rm terraform.tfstate.backup

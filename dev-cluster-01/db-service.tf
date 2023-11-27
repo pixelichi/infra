@@ -18,10 +18,6 @@ resource "kubernetes_secret" "db" {
   }
 }
 
-# locals {
-#   db_pvc_name = "db-pvc"
-# }
-
 resource "kubernetes_deployment" "db" {
   metadata {
     name      = "db"

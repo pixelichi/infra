@@ -1,36 +1,14 @@
 #!/bin/bash
 
 # Vault Address
-VAULT_ADDRESS="http://127.0.0.1:8200"
+export VAULT_ADDR="http://127.0.0.1:8200"
+
+POLICY_FILE="$(pwd)/scripts/initialize-vault/rsc/terraform-policy.hcl"
 
 # Policy Name
-POLICY_NAME="terraform-policy"
+POLICY_NAME="terraform"
 
 # Policy Definition
-POLICY_CONTENT='
-path "secret/terraform/*" {
-  capabilities = ["create", "read", "update", "delete", "list"]
-}
-
-# Enable the Kubernetes auth backend
-path "sys/auth/kubernetes" {
-  capabilities = ["create", "read", "update", "delete"]
-}
-
-# Configure the Kubernetes auth backend
-path "auth/kubernetes/*" {
-  capabilities = ["create", "read", "update", "delete", "list", "sudo"]
-}
-
-# Optional: Permissions to manage policies, roles, etc.
-path "sys/policies/acl/*" {
-  capabilities = ["create", "read", "update", "delete", "list"]
-}
-
-path "auth/token/create" {
-  capabilities = ["update"]
-}
-'
 
 # Function to check if user is logged into Vault
 check_vault_login() {
@@ -54,15 +32,10 @@ if ! check_vault_login; then
   fi
 fi
 
-# Check if policy exists and create it if it doesn't
-if check_policy_exists; then
-  printf "Policy '%s' already exists.\n\n" "$POLICY_NAME"
+echo "Creating policy '$POLICY_NAME' or updating if already existant..."
+vault policy write $POLICY_NAME $POLICY_FILE
+if [ $? -eq 0 ]; then
+  echo "Policy '$POLICY_NAME' created successfully."
 else
-  echo "Creating policy '$POLICY_NAME'..."
-  echo "$POLICY_CONTENT" | vault policy write $POLICY_NAME -
-  if [ $? -eq 0 ]; then
-    echo "Policy '$POLICY_NAME' created successfully."
-  else
-    echo "Failed to create policy '$POLICY_NAME'."
-  fi
+  echo "Failed to create policy '$POLICY_NAME'."
 fi

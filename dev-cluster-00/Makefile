@@ -1,4 +1,5 @@
 CLUSTER_NAME = jtrack
+export VAULT_ADDR = http://127.0.0.1:8200
 
 setup-local-env:
 	./scripts/setup-local-machine/setup-local-machine.sh
@@ -17,10 +18,13 @@ destroy-cluster:
 
 refresh-cluster: destroy-cluster create-cluster
 
+fwd-vault:
+	./scripts/port-forward.sh "vault" "vault" 8200 8200
+	./scripts/port-forward.sh "vault" "vault" 8201 8201
 
-proxy-vault:
-	./scripts/proxy-stop-vault/proxy-stop-vault.sh
+fwd-stop-vault:
+	lsof -i :"8200" | awk 'NR>1 {print $$2}' | xargs -r kill -9
+	lsof -i :"8201" | awk 'NR>1 {print $$2}' | xargs -r kill -9
 
-
-proxy-stop-vault:
-	./scripts/proxy-vault/proxy-vault.sh
+terraform-token:
+	vault token create -policy="terraform-policy" -format=yaml -field=token
