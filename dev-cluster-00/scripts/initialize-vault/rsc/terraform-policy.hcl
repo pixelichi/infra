@@ -1,55 +1,62 @@
 # Secret related Permissions =======================
-
-path "secret/terraform/*" {
-  capabilities = ["create", "read", "update", "delete", "list"]
+path "*" {
+  capabilities = ["create", "read", "update", "delete", "list", "sudo"]
 }
 
-path "secret/data/terraform/*" {
-  capabilities = ["create", "read", "update", "delete", "list"]
-}
+// // path "secret/terraform/*" {
+// //   capabilities = ["create", "read", "update", "delete", "list"]
+// // }
 
-# Token related Permissions ========================
+// // path "secret/data/terraform/*" {
+// //   capabilities = ["create", "read", "update", "delete", "list"]
+// // }
 
-path "auth/token/create" {
-  capabilities = ["update"]
-}
+// # Token related Permissions ========================
 
-
-# Mount related Permissions ========================
-
-path "sys/mounts" {
-  capabilities = ["read"]
-}
-
-path "sys/remount" {
-  capabilities = ["read", "update", "create", "delete", "list", "sudo"]
-}
+// path "auth/token/create" {
+//   capabilities = ["update"]
+// }
 
 
-path "sys/mounts/*" {
-  capabilities = ["read", "update", "delete" , "create", "list"]
-}
+// # Mount related Permissions ========================
+
+// path "sys/mounts" {
+//   capabilities = ["read"]
+// }
+
+// path "sys/remount" {
+//   capabilities = ["read", "update", "create", "delete", "list", "sudo"]
+// }
 
 
-# Auth Related Permissions =========================
+// path "sys/mounts/*" {
+//   capabilities = ["read", "update", "delete" , "create", "list"]
+// }
 
-path "sys/auth/kubernetes/*" { # Necessary for setting up Kubernetes Backend
-  capabilities = ["read", "update", "delete" , "create", "list", "sudo"]
-}
 
-path "sys/auth" {
-  capabilities = ["read"]
-}
+// # Auth Related Permissions =========================
 
-path "auth/kubernetes/*" { # Necessary for setting up Kubernetes Backend
-  capabilities = ["read", "update", "delete" , "create", "list", "sudo"]
-}
+// path "sys/auth/kubernetes" { # Necessary for setting up Kubernetes Backend
+//   capabilities = ["read", "update", "delete" , "create", "list", "sudo"]
+// }
 
-# Policy Related Permissions =======================
-path "sys/policies/acl/*" {
-  capabilities = ["list"]
-}
+// path "sys/auth/kubernetes*" { # Necessary for setting up Kubernetes Backend
+//   capabilities = ["read", "update", "delete" , "create", "list", "sudo"]
+// }
 
-path "sys/policies/acl/terraform/*" {
-  capabilities = ["create", "read", "update", "delete"]
-}
+// path "sys/auth" {
+//   capabilities = ["read"]
+// }
+
+// path "auth/kubernetes*" { # Necessary for setting up Kubernetes Backend
+//   capabilities = ["read", "update", "delete" , "create", "list", "sudo"]
+// }
+
+// # Policy Related Permissions =======================
+// path "sys/policies/acl*" {
+//   capabilities = ["create", "read", "update", "delete", "list"]
+// }
+
+// path "sys/policies/acl/terraform*" {
+//   capabilities = ["create", "read", "update", "delete"]
+// }

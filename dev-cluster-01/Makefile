@@ -1,8 +1,9 @@
 CLUSTER_NAME="jtrack"
 
 default:
+	$(MAKE) load-images
 	./tf init
-	./tf apply
+	echo yes | ./tf apply
 
 fwd-assets:
 	./scripts/port-forward.sh "static-asset" "static-asset-service" 3000 80
@@ -36,3 +37,27 @@ clean-state:
 	rm -rf .terraform
 	rm terraform.tfstate
 	rm terraform.tfstate.backup
+
+vault-token:
+	vault token create -policy="terraform" -format=yaml -field=token
+
+pod:
+	echo yes | ./tf apply -target=kubernetes_pod.minio_pod 
+
+delete-pod:
+	echo yes | ./tf destroy -target=kubernetes_pod.minio_pod
+
+get-pod:
+	kubectl get pod -n minio
+
+logs:
+	kubectl logs --follow -n default pods/minio-pod -c vault-agent-init
+
+down:
+	echo yes | ./tf destroy
+
+up:
+	echo yes | ./tf apply
+
+shell:
+	kubectl -n default exec -it minio-pod -c vault-agent-init -- /bin/sh

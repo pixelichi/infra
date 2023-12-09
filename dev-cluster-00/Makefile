@@ -1,6 +1,8 @@
 CLUSTER_NAME = jtrack
 export VAULT_ADDR = http://127.0.0.1:8200
 
+default: create-cluster
+
 setup-local-env:
 	./scripts/setup-local-machine/setup-local-machine.sh
 
@@ -8,7 +10,7 @@ setup-local-env:
 create-cluster:
 	./scripts/create-cluster/create-cluster.sh $(CLUSTER_NAME)
 	./tf init
-	./tf apply
+	echo yes | ./tf apply
 	./scripts/initialize-vault/initialize-vault.sh
 
 	
@@ -17,6 +19,7 @@ destroy-cluster:
 
 
 refresh-cluster: destroy-cluster create-cluster
+
 
 fwd-vault:
 	./scripts/port-forward.sh "vault" "vault" 8200 8200

@@ -13,6 +13,9 @@ export VAULT_ADDR='http://127.0.0.1:8200'
 export TF_VAR_VAULT_TOKEN
 TF_VAR_VAULT_TOKEN="$(vault token create -policy="terraform" -format=yaml -field=token)"
 
+# export TF_VAR_VAULT_SA_JWT
+# TF_VAR_VAULT_SA_JWT=$(kubectl get secret $(kubectl get serviceaccount vault-auth -n vault -o jsonpath="{.secrets[0].name}") -n vault -o jsonpath="{.data.token}" | base64 --decode)
+
 if [ "$TF_LOG" = "debug" ]; then
     printf "\n\nUsing this TOKEN for VAULT: %s\n\n" "$TF_VAR_VAULT_TOKEN"
 

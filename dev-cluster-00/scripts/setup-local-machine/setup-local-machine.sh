@@ -36,3 +36,15 @@ if ! command -v vault &>/dev/null; then
 else
   echo "vault is already installed."
 fi
+
+LINE_TO_ADD="export VAULT_ADDR=http://127.0.0.1:8200"
+FILE="$HOME/.zshrc"
+
+# Check if the line exists in the file, otherwise add it
+if grep -q "$LINE_TO_ADD" "$FILE"; then
+  echo "The line already exists in $FILE"
+else
+  # Add the line to the file
+  printf "\n$LINE_TO_ADD" >>"$FILE"
+  echo "The line has been added to $FILE"
+fi
