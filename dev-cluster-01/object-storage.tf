@@ -8,7 +8,7 @@ resource "kubernetes_namespace" "minio" {
 resource "kubernetes_service_account" "minio_sa" {
   metadata {
     name      = "minio-sa"
-    namespace = "default"
+    namespace = kubernetes_namespace.minio.metadata[0].name
   }
 }
 
@@ -63,7 +63,8 @@ resource "kubernetes_persistent_volume_claim" "minio_pvc" {
 
 resource "kubernetes_pod" "minio_pod" {
   metadata {
-    name = "minio-pod"
+    name      = "minio-pod"
+    namespace = "minio"
     labels = {
       App = "minio"
     }
