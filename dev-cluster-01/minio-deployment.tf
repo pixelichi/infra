@@ -23,12 +23,15 @@ resource "kubernetes_deployment" "minio" {
         annotations = {
           # https://developer.hashicorp.com/vault/docs/platform/k8s/injector/annotations 
           # https://github.com/hashicorp/vault-k8s/blob/main/agent-inject/agent/annotations.go
-          "vault.hashicorp.com/agent-inject"                       = "true"
-          "vault.hashicorp.com/role"                               = vault_kubernetes_auth_backend_role.minio_secrets_read.role_name
-          "vault.hashicorp.com/agent-inject-secret-access_key"     = "secret/data/terraform/minio"
-          "vault.hashicorp.com/agent-inject-template-access_key"   = "{{- with secret \"secret/data/terraform/minio\" -}}export MINIO_ACCESS_KEY={{ .Data.data.access_key }}{{- end }}"
-          "vault.hashicorp.com/agent-inject-secret-secret_token"   = "secret/terraform/minio"
-          "vault.hashicorp.com/agent-inject-template-secret_token" = "{{- with secret \"secret/data/terraform/minio\" -}}export MINIO_SECRET_TOKEN={{ .Data.data.secret_token }}{{- end }}"
+          "vault.hashicorp.com/agent-inject"                  = "true"
+          "vault.hashicorp.com/role"                          = vault_kubernetes_auth_backend_role.minio_secrets_read.role_name
+          "vault.hashicorp.com/agent-inject-secret-secrets"   = "secret/terraform/minio"
+          "vault.hashicorp.com/agent-inject-template-secrets" = <<EOF
+{{- with secret "secret/data/terraform/minio" -}}
+MINIO_ROOT_USER={{ .Data.data.access_key }}
+MINIO_ROOT_PASSWORD={{ .Data.data.secret_token }}
+{{- end }}
+EOF
         }
       }
 
@@ -45,25 +48,12 @@ resource "kubernetes_deployment" "minio" {
             ":9090"
           ]
 
-          # env {
-          #   name = "MINIO_ACCESS_KEY"
-          #   value_from {
-          #     secret_key_ref {
-          #       name = vault_generic_secret.minio_secrets.
-          #       key  = "access-key"
-          #     }
-          #   }
-          # }
-
-          # env {
-          #   name = "MINIO_SECRET_KEY"
-          #   value_from {
-          #     secret_key_ref {
-          #       name = vault_generic_secret.minio_secrets.id
-          #       key  = "secret-key"
-          #     }
-          #   }
-          # }
+          # Using the following to read the vault secrets into env variables
+          # https://min.io/docs/minio/container/operations/install-deploy-manage/deploy-minio-single-node-single-drive.html#id4
+          env {
+            name  = "MINIO_CONFIG_ENV_FILE"
+            value = "/vault/secrets/secrets"
+          }
 
           port {
             container_port = 9000
@@ -104,8 +94,11 @@ resource "kubernetes_deployment" "minio" {
     }
   }
 
+  # https://developer.hashicorp.com/terraform/language/resources/syntax#operation-timeouts
   timeouts {
     create = "30s"
+    update = "30s"
+    delete = "30s"
   }
 
   depends_on = [kubernetes_persistent_volume.minio_pv, kubernetes_persistent_volume_claim.minio_pvc]
