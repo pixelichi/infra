@@ -38,7 +38,7 @@ EOF
       spec {
         service_account_name = kubernetes_service_account.minio_sa.metadata[0].name
         container {
-          image = "minio/minio:latest"
+          image = var.minio_image
           name  = "minio"
 
           args = [
@@ -102,34 +102,4 @@ EOF
   }
 
   depends_on = [kubernetes_persistent_volume.minio_pv, kubernetes_persistent_volume_claim.minio_pvc]
-}
-
-resource "kubernetes_service" "minio" {
-  metadata {
-    name      = "minio"
-    namespace = kubernetes_namespace.minio.metadata[0].name
-  }
-
-  spec {
-    selector = {
-      App = "minio"
-    }
-
-    port {
-      name        = "api"
-      port        = 9000
-      target_port = 9000
-      node_port   = 30001
-    }
-
-    port {
-      name        = "ui"
-      port        = 9090
-      target_port = 9090
-      node_port   = 30002
-    }
-
-
-    type = var.use_load_balancer ? "LoadBalancer" : "NodePort"
-  }
 }
