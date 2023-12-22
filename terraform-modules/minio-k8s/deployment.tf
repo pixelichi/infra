@@ -25,9 +25,9 @@ resource "kubernetes_deployment" "minio" {
           # https://github.com/hashicorp/vault-k8s/blob/main/agent-inject/agent/annotations.go
           "vault.hashicorp.com/agent-inject"                  = "true"
           "vault.hashicorp.com/role"                          = vault_kubernetes_auth_backend_role.minio_secrets_read.role_name
-          "vault.hashicorp.com/agent-inject-secret-secrets"   = "secret/terraform/minio"
+          "vault.hashicorp.com/agent-inject-secret-secrets"   = var.vault_secrets_path
           "vault.hashicorp.com/agent-inject-template-secrets" = <<EOF
-{{- with secret "secret/data/terraform/minio" -}}
+{{- with secret "${var.vault_secrets_path}" -}}
 MINIO_ROOT_USER={{ .Data.data.minio_root_user }}
 MINIO_ROOT_PASSWORD={{ .Data.data.minio_root_password }}
 {{- end }}

@@ -46,3 +46,9 @@ variable "use_load_balancer" {
   type        = bool
   default     = false
 }
+
+variable "vault_secrets_path" {
+  description = "Location of where the secrets for the minio deployment are stored."
+  type        = string
+  default     = "secret/data/terraform/minio"
+}

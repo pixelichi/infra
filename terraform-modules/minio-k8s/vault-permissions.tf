@@ -12,7 +12,7 @@ resource "vault_kubernetes_auth_backend_role" "minio_secrets_read" {
 resource "vault_policy" "read_minio_secrets" {
   name   = "read-minio-secrets"
   policy = <<-EOT
-    path "secret/data/terraform/minio" {
+    path "${var.vault_secrets_path}" {
       capabilities = ["read"]
     }
   EOT
