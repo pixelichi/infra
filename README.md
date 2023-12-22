@@ -40,3 +40,11 @@ Example crontab file:
 ```
 
 ^ That script can be found in `rsc/baremetal/forward-to-cluster.sh`, the cloudflare token needs to be manually placed there.
+
+
+# Current State
+We can now deploy a cluster, deploy vault in that cluster, configure vault, manually add secrets at specific locations where deployments expect them, then go ahead and deploy.
+Vault and Minio have persistence accross cluster restarts / destroys, we are now deploying static assets service and minio. The real passwords for things are kept offline in a password manager, not too bad since there is only one manual step to enter those into vault inside of /secrets/terraform/*.
+
+Next we need to deploy the Database with a good appropriate password and username, as well as deploying the backend service. After that we an play around with a suitable enough prod...
+May be good to look at ssl, but besides that, not too shaby!
