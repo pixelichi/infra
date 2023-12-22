@@ -6,6 +6,7 @@ default: deploy
 deploy: fwd-vault
 	./tf init
 	echo "yes" | ./tf apply
+	@echo "\n\n** Please log into vault through the UI interface and set the appropriate secrets in secrets/terraform/* **"
 
 fwd-vault:
 	./scripts/port-forward.sh "vault" "vault" 8200 8200
