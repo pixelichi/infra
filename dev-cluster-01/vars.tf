@@ -1,5 +1,3 @@
-
-
 variable "use_load_balancer" {
   description = "Set to true to use LoadBalancer, false to use NodePort"
   type        = bool

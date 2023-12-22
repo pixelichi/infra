@@ -10,9 +10,17 @@ verify_arguments() {
 
 create_cluster() {
   # This folder is needed in order to server files mounted from local computer
-  if ! test -d /usr/local/srv; then
-    sudo mkdir -p /usr/local/srv
-  fi
+  sudo mkdir -p /usr/local/srv
+
+  sudo mkdir -p /usr/local/srv/object
+  sudo mkdir -p /usr/local/srv/ui
+  sudo mkdir -p /usr/local/srv/vault
+  sudo mkdir -p /usr/local/srv/db
+
+  # Vault needs it's non-root user to be able to make changes to this directory
+  # Found out the user UID:GID by exec'ing into the vault container and running `id` command
+  sudo chown -R 100:1000 /usr/local/srv/vault
+  sudo chmod -R 700 /usr/local/srv/vault
 
   local cluster_name="$1"
 
