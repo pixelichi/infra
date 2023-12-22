@@ -15,3 +15,13 @@ variable "host_data_path" {
   description = "The path on the node which should be used for persistence."
   default     = "/mnt/vault"
 }
+
+variable "nodeport" {
+  type    = string
+  default = "30010"
+}
+
+variable "k8s_cluster_ca_certificate" {
+  type        = string
+  description = "kubernetes cluster ca certificate. Used for setting up kubernetes provider."
+}

@@ -12,8 +12,3 @@ variable "k8s_cluster_ca_certificate" {
   type        = string
   description = "kubernetes cluster ca certificate. Used for setting up kubernetes provider."
 }
-
-variable "vault_token" {
-  type        = string
-  description = "Vault token to use when setting up vault provider."
-}

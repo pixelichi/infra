@@ -12,7 +12,6 @@ resource "vault_mount" "kv" {
   }
 }
 
-
 resource "kubernetes_secret_v1" "vault_auth_sa_token" {
   metadata {
     name      = "vault-auth-sa-token"
@@ -34,6 +33,6 @@ data "kubernetes_secret" "vault_auth_secret" {
 resource "vault_kubernetes_auth_backend_config" "config" {
   backend            = vault_auth_backend.kubernetes.path
   kubernetes_host    = "https://kubernetes.default.svc"
-  kubernetes_ca_cert = var.CLUSTER_CA_CERTIFICATE
+  kubernetes_ca_cert = var.k8s_cluster_ca_certificate
   token_reviewer_jwt = data.kubernetes_secret.vault_auth_secret.data.token
 }

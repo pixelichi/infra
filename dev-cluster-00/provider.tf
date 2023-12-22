@@ -14,16 +14,16 @@ terraform {
 
 # https://registry.terraform.io/providers/digitalocean/digitalocean/latest/docs/data-sources/kubernetes_cluster
 provider "kubernetes" {
-  host                   = var.HOST
-  token                  = var.TOKEN
-  cluster_ca_certificate = var.CLUSTER_CA_CERTIFICATE
+  host                   = var.k8s_host
+  token                  = var.k8s_token
+  cluster_ca_certificate = var.k8s_cluster_ca_certificate
 }
 
 provider "helm" {
   kubernetes {
-    host                   = var.HOST
-    token                  = var.TOKEN
-    cluster_ca_certificate = var.CLUSTER_CA_CERTIFICATE
+    host                   = var.k8s_host
+    token                  = var.k8s_token
+    cluster_ca_certificate = var.k8s_cluster_ca_certificate
   }
 }
 

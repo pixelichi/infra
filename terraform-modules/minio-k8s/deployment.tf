@@ -28,8 +28,8 @@ resource "kubernetes_deployment" "minio" {
           "vault.hashicorp.com/agent-inject-secret-secrets"   = "secret/terraform/minio"
           "vault.hashicorp.com/agent-inject-template-secrets" = <<EOF
 {{- with secret "secret/data/terraform/minio" -}}
-MINIO_ROOT_USER={{ .Data.data.access_key }}
-MINIO_ROOT_PASSWORD={{ .Data.data.secret_token }}
+MINIO_ROOT_USER={{ .Data.data.minio_root_user }}
+MINIO_ROOT_PASSWORD={{ .Data.data.minio_root_password }}
 {{- end }}
 EOF
         }

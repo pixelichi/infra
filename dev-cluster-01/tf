@@ -1,31 +1,16 @@
 #!/bin/bash -e
 
-export TF_VAR_HOST
-TF_VAR_HOST=$(kubectl config view -o jsonpath="{.clusters[?(@.name==\"$(kubectl config current-context)\")].cluster.server}")
+export TF_VAR_k8s_host
+TF_VAR_k8s_host=$(kubectl config view -o jsonpath="{.clusters[?(@.name==\"$(kubectl config current-context)\")].cluster.server}")
 
-export TF_VAR_TOKEN
-TF_VAR_TOKEN=$(kubectl get secret -n terraform-namespace "$(kubectl -n terraform-namespace get serviceaccount terraform-account -o jsonpath='{.secrets[0].name}')" -o jsonpath='{.data.token}' | base64 --decode)
+export TF_VAR_k8s_token
+TF_VAR_k8s_token=$(kubectl get secret -n terraform-namespace "$(kubectl -n terraform-namespace get serviceaccount terraform-account -o jsonpath='{.secrets[0].name}')" -o jsonpath='{.data.token}' | base64 --decode)
 
-export TF_VAR_CLUSTER_CA_CERTIFICATE
-TF_VAR_CLUSTER_CA_CERTIFICATE=$(kubectl config view --raw -o jsonpath="{.clusters[?(@.name==\"$(kubectl config current-context)\")].cluster.certificate-authority-data}" | base64 --decode)
+export TF_VAR_k8s_cluster_ca_certificate
+TF_VAR_k8s_cluster_ca_certificate=$(kubectl config view --raw -o jsonpath="{.clusters[?(@.name==\"$(kubectl config current-context)\")].cluster.certificate-authority-data}" | base64 --decode)
 
 export VAULT_ADDR='http://127.0.0.1:8200'
-export TF_VAR_VAULT_TOKEN
-TF_VAR_VAULT_TOKEN="$(vault token create -policy="terraform" -format=yaml -field=token)"
-
-# export TF_VAR_VAULT_SA_JWT
-# TF_VAR_VAULT_SA_JWT=$(kubectl get secret $(kubectl get serviceaccount vault-auth -n vault -o jsonpath="{.secrets[0].name}") -n vault -o jsonpath="{.data.token}" | base64 --decode)
-
-if [ "$TF_LOG" = "debug" ]; then
-    printf "\n\nUsing this TOKEN for VAULT: %s\n\n" "$TF_VAR_VAULT_TOKEN"
-
-    printf "Looking up token... \n"
-    vault token lookup $TF_VAR_VAULT_TOKEN
-    printf "\n\n"
-
-    printf "Checking out token capabilities sys/auth/kubernetes ...\n"
-    vault token capabilities $TF_VAR_VAULT_TOKEN sys/auth/kubernetes
-    printf "\n\n"
-fi
+export TF_VAR_vault_token
+TF_VAR_vault_token="$(vault token create -policy="terraform" -format=yaml -field=token)"
 
 terraform "$@"

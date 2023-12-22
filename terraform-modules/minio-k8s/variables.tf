@@ -34,12 +34,6 @@ variable "backend_role_name" {
   default     = "vault-kubernetes-auth"
 }
 
-variable "vault_secret_read_policy_name" {
-  description = "Name of the vault policy to create which allows reading of the minio access secrets"
-  type        = string
-  default     = "read-minio-secrets"
-}
-
 
 variable "minio_image" {
   description = "Image you wish to deploy"

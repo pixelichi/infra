@@ -34,6 +34,22 @@ resource "helm_release" "vault" {
   }
 }
 
+resource "terraform_data" "vault_token" {
+
+  provisioner "local-exec" {
+    command = <<EOT
+    kubectl get secret -n terraform-namespace "$(kubectl -n terraform-namespace get serviceaccount terraform-account -o jsonpath='{.secrets[0].name}')" -o jsonpath='{.data.token}' | base64 --decode 
+    EOT
+  }
+
+  depends_on = [helm_release.vault]
+}
+
+output "vault_token" {
+  sensitive = true
+  value     = terraform_data.vault_token.output
+}
+
 
 resource "helm_release" "vault_operator" {
   name             = "vault-operator"
@@ -41,6 +57,8 @@ resource "helm_release" "vault_operator" {
   chart            = "vault-secrets-operator"
   create_namespace = false
   namespace        = var.namespace
+
+
 
   # Depends on namespace creation
   depends_on = [helm_release.vault]

@@ -1,12 +1,7 @@
-# dev-cluster-01
+# Dev Cluster 01
+This slice of terraform code is responsible for setting up configuration and secrets that rely on infrastructure resulting from dev-cluster-00.
+The reason that this code couldn't be merged into dev-cluster-02 is because it requires manually setup if it hasn't already been done.
 
-This terraform code is meant to deploy additional resources on top of the dev-cluster-00 deployment. Whereas 00 was about foundational items, this cluser (01) is about resources that are used by the product itself and rely on the foundational resources from 00. The current example of resources in 00 is Vault, while this cluster contains things like DB / nginx / backend / minio.
+This is where you define the "template" of secrets that are expected for the admin to enter in manually into vault before you can proceed and apply dev-cluster-02.
 
-# Local Setup
-
-Please see the readme within dev-cluster-00.
-
-## Crontab
-
-@reboot /usr/local/sbin/forward-to-cluster.sh
-^ That script can be found in `rsc/baremetal/forward-to-cluster.sh`, the cloudflare token needs to be manually placed there.
+This is mainly useful if you are doing the foundation deployment for the first time, since thereafter, vault should have the secrets all saved in the right places and they should persist accross restarts. You shouldn't really need to run this more than once, ever for a live cluster. 

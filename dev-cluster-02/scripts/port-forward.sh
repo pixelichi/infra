@@ -25,8 +25,6 @@ proxy_service() {
         exit 1
     fi
 
-    printf "START - port forward service: $service_name on local port: $local_port to $remote_port\n"
-
     # Check if the service exists
     if ! kubectl -n "$namespace" get service "$service_name" &>/dev/null; then
         echo "Service $service_name does not exist in namespace $namespace."
@@ -40,9 +38,7 @@ proxy_service() {
     # Forward port
     echo "Proxying the $service_name..."
     kubectl -n "$namespace" port-forward service/"$service_name" "$local_port":"$remote_port" --address 0.0.0.0 1>/dev/null &
-    sleep 3
-    printf "DONE - port forward service: $service_name on local port: $local_port to $remote_port\n\n"
-
+    sleep 3 && echo "Now proxying $service_name on port $local_port."
 }
 
 proxy_service "$@"
