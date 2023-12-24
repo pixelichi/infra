@@ -1,5 +1,5 @@
 
-resource "vault_kubernetes_auth_backend_role" "minio_secrets_read" {
+resource "vault_kubernetes_auth_backend_role" "auth_backend_role" {
   role_name                        = "vault-kubernetes-auth-${var.service_account_name}-${var.namespace_name}"
   backend                          = "kubernetes"
   bound_service_account_names      = ["${var.service_account_name}"]
@@ -35,7 +35,7 @@ resource "kubernetes_cluster_role_binding" "vault_auth" {
 
 resource "kubernetes_cluster_role" "vault_tokenreview" {
   metadata {
-    name = "vault-tokenreview-${kubernetes_service_account.sa.metadata[0].name}-${kubernetes_service_account.sa.metadata[0].namespace}"
+    name = "vault-tokenreview-${var.service_account_name}-${var.namespace_name}"
   }
 
   rule {

@@ -24,7 +24,7 @@ resource "kubernetes_deployment" "minio" {
           # https://developer.hashicorp.com/vault/docs/platform/k8s/injector/annotations 
           # https://github.com/hashicorp/vault-k8s/blob/main/agent-inject/agent/annotations.go
           "vault.hashicorp.com/agent-inject"                  = "true"
-          "vault.hashicorp.com/role"                          = vault_kubernetes_auth_backend_role.minio_secrets_read.role_name
+          "vault.hashicorp.com/role"                          = module.setup_vault_service_account_permissions.vault_secret_role
           "vault.hashicorp.com/agent-inject-secret-secrets"   = var.vault_secrets_path
           "vault.hashicorp.com/agent-inject-template-secrets" = <<EOF
 {{- with secret "${var.vault_secrets_path}" -}}

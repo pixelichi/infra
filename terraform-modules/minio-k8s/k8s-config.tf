@@ -12,33 +12,15 @@ resource "kubernetes_service_account" "minio_sa" {
   }
 }
 
-resource "kubernetes_cluster_role_binding" "vault_auth" {
-  metadata {
-    name = "vault-tokenreview-binding"
-  }
-
-  role_ref {
-    api_group = "rbac.authorization.k8s.io"
-    kind      = "ClusterRole"
-    name      = kubernetes_cluster_role.vault_tokenreview.metadata[0].name
-  }
-
-  subject {
-    kind      = "ServiceAccount"
-    name      = kubernetes_service_account.minio_sa.metadata[0].name
-    namespace = kubernetes_service_account.minio_sa.metadata[0].namespace
-  }
-}
-
-
-resource "kubernetes_cluster_role" "vault_tokenreview" {
-  metadata {
-    name = "vault-tokenreview"
-  }
-
-  rule {
-    api_groups = ["authentication.k8s.io"]
-    resources  = ["tokenreviews"]
-    verbs      = ["create"]
-  }
+module "setup_vault_service_account_permissions" {
+  source               = "../setup-k8s-sa-vault-permissions"
+  backend_role_name    = var.backend_role_name
+  namespace_name       = kubernetes_namespace.minio.metadata[0].name
+  service_account_name = kubernetes_service_account.minio_sa.metadata[0].name
+  vault_policy_name    = var.vault_policy_name
+  vault_policy         = <<-EOT
+    path "${var.vault_secrets_path}" {
+      capabilities = ["read"]
+    }
+  EOT
 }

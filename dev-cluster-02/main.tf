@@ -6,3 +6,7 @@ module "minio_deployment" {
 module "static-asset-server" {
   source = "../terraform-modules/static-asset-server"
 }
+
+module "postgres" {
+  source = "../terraform-modules/postgres-k8s"
+}

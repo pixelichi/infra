@@ -34,3 +34,22 @@ variable "db_name" {
   description = "value"
   default     = "db"
 }
+
+
+variable "backend_role_name" {
+  description = "vault_kubernetes_auth_backend_role name"
+  type        = string
+  default     = "database-secret-read-backend-role"
+}
+
+variable "vault_policy_name" {
+  description = "The name of the vault policy which will be used to store secrets that the deployment pods can access."
+  type        = string
+  default     = "read-db-secrets"
+}
+
+variable "vault_secrets_path" {
+  description = "Location of where the secrets for the deployment pods are stored."
+  type        = string
+  default     = "secret/data/terraform/db"
+}

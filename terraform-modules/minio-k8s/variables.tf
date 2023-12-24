@@ -47,6 +47,12 @@ variable "use_load_balancer" {
   default     = false
 }
 
+variable "vault_policy_name" {
+  description = "The name of the vault policy which will be used to store secrets that the deployment pods can access."
+  type        = string
+  default     = "read-minio-secrets"
+}
+
 variable "vault_secrets_path" {
   description = "Location of where the secrets for the minio deployment are stored."
   type        = string

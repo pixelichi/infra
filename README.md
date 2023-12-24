@@ -27,7 +27,6 @@ crontab -e
 # Example of something that runs every 5 minutes
 # */5 * * * * /path/to/your/script.sh
 
-
 # After adding you can verify contrab here
 crontab -l
 ```

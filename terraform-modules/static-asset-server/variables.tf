@@ -1,6 +1,6 @@
 # Fields with defaults ===================================================================================
 variable "namespace" {
-  description = "Namespace that will be created to deploy minio inside of."
+  description = "Namespace that will be created to deploy nginx inside of."
   type        = string
   default     = "static-asset"
 }
