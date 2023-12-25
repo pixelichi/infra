@@ -8,9 +8,13 @@ variable "namespace_name" {
   type        = string
 }
 
-variable "backend_role_name" {
-  description = "Name you want to give to the vault kubernetes auth backend role that allows reading of secrets"
+variable "role_name" {
   type        = string
+  description = <<EOT
+The role name you would like to use when tying your service account to the requested vault policy. 
+You can call this module multiple times, with the smae role name to tie one service account to multiple policies.
+  EOT 
+
 }
 
 variable "vault_policy_name" {
@@ -26,3 +30,4 @@ variable "vault_policy" {
   description = "Vault Policy that you with to embed onto your service account."
   type        = string
 }
+

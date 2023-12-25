@@ -28,10 +28,10 @@ variable "kubernetes_backend" {
   default     = "kubernetes"
 }
 
-variable "backend_role_name" {
-  description = "vault_kubernetes_auth_backend_role name"
+variable "vault_role_name" {
+  description = "Role Name to use for accessing appropriate secrets in vault"
   type        = string
-  default     = "vault-kubernetes-auth"
+  default     = "vault-secrets-minio"
 }
 
 

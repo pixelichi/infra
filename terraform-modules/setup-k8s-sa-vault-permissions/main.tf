@@ -1,6 +1,6 @@
 
 resource "vault_kubernetes_auth_backend_role" "auth_backend_role" {
-  role_name                        = "vault-kubernetes-auth-${var.service_account_name}-${var.namespace_name}"
+  role_name                        = var.role_name
   backend                          = "kubernetes"
   bound_service_account_names      = ["${var.service_account_name}"]
   bound_service_account_namespaces = ["${var.namespace_name}"]
@@ -17,7 +17,7 @@ resource "vault_policy" "policy" {
 
 resource "kubernetes_cluster_role_binding" "vault_auth" {
   metadata {
-    name = "vault-tokenreview-binding-${var.service_account_name}-${var.namespace_name}"
+    name = "vault-tokenreview-binding-${var.service_account_name}-${var.namespace_name}-${var.vault_policy_name}"
   }
 
   role_ref {
@@ -35,7 +35,7 @@ resource "kubernetes_cluster_role_binding" "vault_auth" {
 
 resource "kubernetes_cluster_role" "vault_tokenreview" {
   metadata {
-    name = "vault-tokenreview-${var.service_account_name}-${var.namespace_name}"
+    name = "vault-tokenreview-${var.service_account_name}-${var.namespace_name}-${var.vault_policy_name}"
   }
 
   rule {

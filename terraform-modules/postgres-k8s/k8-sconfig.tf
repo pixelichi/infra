@@ -12,9 +12,8 @@ resource "kubernetes_service_account" "db_sa" {
 }
 
 module "setup_vault_permissions" {
-  source = "../setup-k8s-sa-vault-permissions"
-
-  backend_role_name    = var.backend_role_name
+  source               = "../setup-k8s-sa-vault-permissions"
+  role_name            = var.backend_role_name
   service_account_name = kubernetes_service_account.db_sa.metadata[0].name
   namespace_name       = kubernetes_namespace.db.metadata[0].name
   vault_policy_name    = var.vault_policy_name

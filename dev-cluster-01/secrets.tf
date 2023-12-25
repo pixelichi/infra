@@ -16,3 +16,10 @@ resource "vault_generic_secret" "db_secrets" {
     postgres_db       = ""
   })
 }
+
+resource "vault_generic_secret" "backend_secrets" {
+  path = "secret/terraform/backend"
+  data_json = jsonencode({
+    token_symmetric_key = ""
+  })
+}

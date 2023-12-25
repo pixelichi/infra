@@ -33,3 +33,21 @@ variable "STORAGE_CLASS" {
 
 variable "VAULT_TOKEN" {
 }
+
+variable "minio_secrets_path" {
+  type        = string
+  description = "The path in vault where the minio secrets are stored."
+  default     = "secret/data/terraform/minio"
+}
+
+variable "db_secrets_path" {
+  type        = string
+  description = "The path in vault where the minio secrets are stored."
+  default     = "secret/data/terraform/db"
+}
+
+variable "backend_secrets_path" {
+  type        = string
+  description = "The path in vault where the minio secrets are stored."
+  default     = "secret/data/terraform/backend"
+}

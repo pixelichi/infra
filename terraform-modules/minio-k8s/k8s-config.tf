@@ -14,7 +14,7 @@ resource "kubernetes_service_account" "minio_sa" {
 
 module "setup_vault_service_account_permissions" {
   source               = "../setup-k8s-sa-vault-permissions"
-  backend_role_name    = var.backend_role_name
+  role_name            = var.vault_role_name
   namespace_name       = kubernetes_namespace.minio.metadata[0].name
   service_account_name = kubernetes_service_account.minio_sa.metadata[0].name
   vault_policy_name    = var.vault_policy_name
