@@ -27,8 +27,8 @@ resource "kubernetes_deployment" "api_server_deploy" {
           "vault.hashicorp.com/agent-inject" = "true"
           "vault.hashicorp.com/role"         = module.secrets_role.vault_secret_role
 
-          "vault.hashicorp.com/agent-inject-secret-config"   = "secret/data/terraform"
-          "vault.hashicorp.com/agent-inject-template-config" = <<EOF
+          "vault.hashicorp.com/agent-inject-secret-.env"   = "secret/data/terraform"
+          "vault.hashicorp.com/agent-inject-template-.env" = <<EOF
 {{- with secret "${var.db_secret_path}" -}}
 DB_NAME="{{ .Data.data.postgres_db }}"
 DB_USER="{{ .Data.data.postgres_user }}"
@@ -40,7 +40,7 @@ DB_SOURCE="postgresql://{{ .Data.data.postgres_user }}:{{ .Data.data.postgres_pa
 MINIO_ROOT_USER="{{ .Data.data.minio_root_user }}"
 MINIO_ROOT_PASSWORD="{{ .Data.data.minio_root_password }}"
 MINIO_ENDPOINT="minio.minio.svc.cluster.local:9000"
-MINIO_PUBLIC_ENDPOINT="obj.shinypothos.com"
+MINIO_PUBLIC_ENDPOINT=obj.shinypothos.com
 {{- end }}
 {{ with secret "${var.backend_secret_path}" -}}
 TOKEN_SYMMETRIC_KEY="{{ .Data.data.token_symmetric_key }}"
@@ -51,9 +51,9 @@ EOF
       spec {
         service_account_name = kubernetes_service_account.backend.metadata[0].name
         container {
-          name  = "backend"
-          image = "nginx:latest"
-          # image_pull_policy = "Never"
+          name              = "backend"
+          image             = "backend:latest"
+          image_pull_policy = "Never"
 
           port {
             container_port = 1337
