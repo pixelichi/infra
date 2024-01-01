@@ -1,0 +1,13 @@
+#!/bin/bash -e
+
+set_variables() {
+    export TF_VAR_home_public_ip
+    TF_VAR_home_public_ip=$(curl -qs http://checkip.amazonaws.com)
+
+    printf "%s\n\n" "Injecting properties:"
+    printf "%s\n" "TF_VAR_home_public_ip = ${TF_VAR_home_public_ip}"
+    printf "%s\n\n" "------------------------------------------------------------------------"
+}
+
+set_variables
+terraform "$@"

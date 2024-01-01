@@ -20,7 +20,7 @@ resource "kubernetes_persistent_volume_v1" "vault_pv" {
 
     volume_mode                      = "Filesystem"
     access_modes                     = ["ReadWriteOnce"]
-    persistent_volume_reclaim_policy = "Recycle"
+    persistent_volume_reclaim_policy = "Delete"
 
     storage_class_name = kubernetes_storage_class_v1.vault_hostpath.metadata[0].name
     persistent_volume_source {
@@ -28,5 +28,9 @@ resource "kubernetes_persistent_volume_v1" "vault_pv" {
         path = var.host_data_path
       }
     }
+  }
+
+  timeouts {
+    create = "30s"
   }
 }

@@ -1,0 +1,72 @@
+#!/bin/bash -xe
+
+OS_USERNAME="ubuntu"
+SCRIPTS_DIR="../rsc/scripts"
+CONTROLLER_PUBLIC_IP=''
+
+set_tf_variables() {
+    export TF_VAR_home_public_ip
+    TF_VAR_home_public_ip=$(curl -qs http://checkip.amazonaws.com)
+
+    export TF_VAR_kubeconfig_path
+    TF_VAR_kubeconfig_path="/tmp/tf/prod-00/kubeconfig"
+
+    printf "%s\n\n" "Injecting properties:"
+    printf "%s\n" "TF_VAR_home_public_ip = ${TF_VAR_home_public_ip}"
+    printf "%s\n" "TF_VAR_kubeconfig_path = ${TF_VAR_kubeconfig_path}"
+    printf "%s\n\n" "------------------------------------------------------------------------"
+}
+
+set_k8s_variables() {
+    pushd "../prod-00"
+    CONTROLLER_PUBLIC_IP="$(make controller-ip)"
+    popd
+}
+
+cluster_up() {
+    kubectl cluster-info 1>/dev/null 2>&1
+}
+
+setup_tunnel() {
+    $SCRIPTS_DIR/util/tunnel.sh -u $OS_USERNAME -h "$CONTROLLER_PUBLIC_IP" -i ~/.ssh/aws-key -l 6443 -r 6443
+}
+
+setup_kubeconfig() {
+    $SCRIPTS_DIR/k8s/fetch_kubeconfig.sh "$OS_USERNAME" "$CONTROLLER_PUBLIC_IP" "$HOME/.ssh/aws-key" "$HOME/kube/prod-00/config" '127.0.0.1'
+}
+
+ensure_cluster_connectivity() {
+    # Nothing needs to be done
+    if cluster_up; then
+        return 0
+    fi
+
+    # Needed in order to do tunneling / kubeconfig fetching
+    set_k8s_variables
+
+    # Maybe we just need tunneling?
+    setup_tunnel
+    if cluster_up; then
+        return 0
+    fi
+
+    # Maybe we need kubeconfig setup?
+    setup_kubeconfig
+    if cluster_up; then
+        return 0
+    fi
+
+    echo "Could not ensure connectivy to cluster" && exit 1
+}
+
+handle_init() {
+    if [ "$1" == "init" ]; then
+        terraform init
+        exit 0
+    fi
+}
+
+handle_init "$@"
+set_tf_variables
+ensure_cluster_connectivity
+terraform "$@"

@@ -1,5 +1,4 @@
 #!/bin/bash -e
-#!/bin/bash -e
 
 proxy_service() {
     # Parameter count validation
@@ -29,7 +28,7 @@ proxy_service() {
 
     # Check if the service exists
     if ! kubectl -n "$namespace" get service "$service_name" &>/dev/null; then
-        echo "Service $service_name does not exist in namespace $namespace."
+        printf "\n\n\e[31m%s\e[0m\n\n" "port-forward.sh - Service $service_name does not exist in namespace $namespace."
         exit 1
     fi
 

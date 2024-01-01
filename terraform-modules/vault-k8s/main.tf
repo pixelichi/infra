@@ -1,10 +1,27 @@
+resource "kubernetes_namespace" "vault_namespace" {
+  metadata {
+    name = var.namespace
+  }
+}
+
 resource "helm_release" "vault" {
   name       = "vault"
   repository = "https://helm.releases.hashicorp.com"
   chart      = "vault"
 
-  namespace        = var.namespace
-  create_namespace = true
+  namespace        = kubernetes_namespace.vault_namespace.metadata[0].name
+  create_namespace = false
+
+  # values = [
+  #   yamlencode({
+  #     server = {
+  #       persistentVolumeClaimRetentionPolicy = {
+  #         whenDeleted = "Delete"
+  #         whenScaled  = "Delete"
+  #       }
+  #     }
+  #   }),
+  # ]
 
   set {
     name  = "injector.logLevel"
@@ -30,36 +47,15 @@ resource "helm_release" "vault" {
 
   set {
     name  = "server.dataStorage.storageClass"
-    value = kubernetes_storage_class_v1.vault_hostpath.metadata[0].name
+    value = "vault-hostpath"
   }
 }
-
-resource "terraform_data" "vault_token" {
-
-  provisioner "local-exec" {
-    command = <<EOT
-    kubectl get secret -n terraform-namespace "$(kubectl -n terraform-namespace get serviceaccount terraform-account -o jsonpath='{.secrets[0].name}')" -o jsonpath='{.data.token}' | base64 --decode 
-    EOT
-  }
-
-  depends_on = [helm_release.vault]
-}
-
-output "vault_token" {
-  sensitive = true
-  value     = terraform_data.vault_token.output
-}
-
 
 resource "helm_release" "vault_operator" {
-  name             = "vault-operator"
+  # Don't make the name longer it fucks up terraform
+  name             = "vault-op"
   repository       = "https://helm.releases.hashicorp.com"
   chart            = "vault-secrets-operator"
   create_namespace = false
-  namespace        = var.namespace
-
-
-
-  # Depends on namespace creation
-  depends_on = [helm_release.vault]
+  namespace        = kubernetes_namespace.vault_namespace.metadata[0].name
 }

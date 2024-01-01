@@ -3,7 +3,7 @@
 # Vault Address
 export VAULT_ADDR="http://127.0.0.1:8200"
 
-POLICY_FILE="$(pwd)/scripts/initialize-vault/rsc/terraform-policy.hcl"
+POLICY_FILE="../rsc/scripts/initialize-vault/rsc/terraform-policy.hcl"
 
 # Policy Name
 POLICY_NAME="terraform"

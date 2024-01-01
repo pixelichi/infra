@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 # Define the Vault address (change this to your Vault's address)
 export VAULT_ADDR="http://127.0.0.1:8200"
